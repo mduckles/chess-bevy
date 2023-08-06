@@ -1,63 +1,120 @@
-use bevy::{prelude::*, window::Window};
+use bevy::{prelude::*, render::camera::ScalingMode, window::Window};
+use Column::*;
+use Row::*;
 
-const BOARD_DIMENSION: f32 = 8.;
 const SQUARE_SIZE: f32 = 100.;
+const ROW: [Row; 8] = [A, B, C, D, E, F, G, H];
+const COLUMN: [Column; 8] = [One, Two, Three, Four, Five, Six, Seven, Eight];
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Chess".into(),
-                resolution: (800., 800.).into(),
-                resizable: false,
                 ..default()
             }),
             ..default()
         }))
+        // .insert_resource(ChessBoard {
+        //     board: vec![vec![Square {
+        //         color: Color::WHITE,
+        //         pos: Vec3::new(0., 0., 0.),
+        //         chess_pos: (Column::One, Row::A),
+        //     }]],
+        // })
         .add_systems(Startup, setup)
         .run();
 }
 
-fn draw_square(size: f32, color: (f32, f32, f32), posx: f32, posy: f32) -> SpriteBundle {
+fn setup(mut commands: Commands) {
+    let mut camera = Camera2dBundle::default();
+
+    camera.projection.scaling_mode = ScalingMode::AutoMin {
+        min_width: 800.,
+        min_height: 800.,
+    };
+
+    camera.transform = Transform::from_translation(Vec3::new(0., 0., 0.));
+
+    commands.spawn(camera);
+
+    commands.spawn(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(1., 1., 1.),
+            custom_size: Some(Vec2::new(SQUARE_SIZE, SQUARE_SIZE)),
+            ..default()
+        },
+        transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
+        ..default()
+    });
+
+    // let mut color: Color;
+    // for (i, row) in ROW.iter().enumerate() {
+    //     board.board.push(Vec::new());
+    //     for (j, column) in COLUMN.iter().enumerate() {
+    //         if (i + j) % 2 == 0 {
+    //             color = Color::rgb(1., 1., 1.)
+    //         } else {
+    //             color = Color::rgb(0., 0., 0.)
+    //         }
+    //         board.board[i].push(Square {
+    //             chess_pos: (column.clone(), row.clone()),
+    //             pos: Vec3::new(i as f32 * SQUARE_SIZE, j as f32 * SQUARE_SIZE, 0.),
+    //             color,
+    //         })
+    //     }
+    // }
+    // //draw board
+    // for row in board.board.clone() {
+    //     for square in row {
+    //         commands.spawn(draw_square(SQUARE_SIZE, square.color, square.pos));
+    //     }
+    // }
+}
+
+#[derive(Resource, Debug)]
+pub struct ChessBoard {
+    pub board: Vec<Vec<Square>>,
+}
+
+fn draw_square(size: f32, color: Color, pos: Vec3) -> SpriteBundle {
     SpriteBundle {
         sprite: Sprite {
-            color: Color::rgb(color.0, color.1, color.2),
+            color,
             custom_size: Some(Vec2::new(size, size)),
             ..default()
         },
-        transform: Transform::from_xyz(posx, posy, 0.),
+        transform: Transform::from_translation(pos),
         ..default()
     }
 }
 
-#[derive(Component)]
-struct MainCamera;
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum Row {
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+}
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum Column {
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+}
 
-fn setup(mut commands: Commands) {
-    let mut color: (f32, f32, f32);
-
-    commands.spawn((
-        Camera2dBundle {
-            transform: Transform::from_xyz(350., 350., 5.),
-            ..default()
-        },
-        MainCamera,
-    ));
-
-    for row in 0..(BOARD_DIMENSION as i32) {
-        for column in 0..(BOARD_DIMENSION as i32) {
-            if (column + row) % 2 == 0 {
-                color = (0.0, 0.0, 0.0);
-            } else {
-                color = (1., 1., 1.);
-            }
-            commands.spawn(draw_square(
-                SQUARE_SIZE,
-                color,
-                (row as f32) * SQUARE_SIZE,
-                (column as f32) * SQUARE_SIZE,
-            ));
-        }
-    }
-    //square/rectangle
+#[derive(Component, Clone, Copy, Debug)]
+pub struct Square {
+    pub chess_pos: (Column, Row),
+    pub pos: Vec3,
+    pub color: Color,
 }
