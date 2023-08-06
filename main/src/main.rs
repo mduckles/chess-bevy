@@ -1,8 +1,16 @@
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle, window::Window};
+use bevy::{prelude::*, window::Window};
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Chess".into(),
+                resolution: (800., 800.).into(),
+                resizable: false,
+                ..default()
+            }),
+            ..default()
+        }))
         .add_systems(Startup, setup)
         .run();
 }
@@ -25,14 +33,11 @@ struct MainCamera;
 fn setup(mut commands: Commands) {
     let board_dimension = 8;
     let size = 100.0;
-    let mut color = (0., 0., 0.);
+    let mut color: (f32, f32, f32);
+
     commands.spawn((
         Camera2dBundle {
-            transform: Transform::from_xyz(
-                (board_dimension as f32 * size) / 2.,
-                (board_dimension as f32 * size) / 2.,
-                5.,
-            ),
+            transform: Transform::from_xyz(350., 350., 5.),
             ..default()
         },
         MainCamera,
