@@ -2,14 +2,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle, window::Window};
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: String::from("Chess"),
-
-                ..default()
-            }),
-            ..Default::default()
-        }))
+        .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
         .run();
 }
@@ -32,6 +25,7 @@ struct MainCamera;
 fn setup(mut commands: Commands) {
     let board_dimension = 8;
     let size = 100.0;
+    let mut color = (0., 0., 0.);
     commands.spawn((
         Camera2dBundle {
             transform: Transform::from_xyz(
@@ -43,23 +37,20 @@ fn setup(mut commands: Commands) {
         },
         MainCamera,
     ));
+
     for row in 0..board_dimension {
         for column in 0..board_dimension {
             if (column + row) % 2 == 0 {
-                commands.spawn(draw_square(
-                    size,
-                    (0.0, 0.0, 0.0),
-                    (row as f32) * size,
-                    (column as f32) * size,
-                ));
+                color = (0.0, 0.0, 0.0);
             } else {
-                commands.spawn(draw_square(
-                    size,
-                    (1., 1., 1.),
-                    (row as f32) * size,
-                    (column as f32) * size,
-                ));
+                color = (1., 1., 1.);
             }
+            commands.spawn(draw_square(
+                size,
+                color,
+                (row as f32) * size,
+                (column as f32) * size,
+            ));
         }
     }
     //square/rectangle
