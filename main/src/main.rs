@@ -1,5 +1,8 @@
 use bevy::{prelude::*, window::Window};
 
+const BOARD_DIMENSION: f32 = 8.;
+const SQUARE_SIZE: f32 = 100.;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -31,8 +34,6 @@ fn draw_square(size: f32, color: (f32, f32, f32), posx: f32, posy: f32) -> Sprit
 struct MainCamera;
 
 fn setup(mut commands: Commands) {
-    let board_dimension = 8;
-    let size = 100.0;
     let mut color: (f32, f32, f32);
 
     commands.spawn((
@@ -43,18 +44,18 @@ fn setup(mut commands: Commands) {
         MainCamera,
     ));
 
-    for row in 0..board_dimension {
-        for column in 0..board_dimension {
+    for row in 0..(BOARD_DIMENSION as i32) {
+        for column in 0..(BOARD_DIMENSION as i32) {
             if (column + row) % 2 == 0 {
                 color = (0.0, 0.0, 0.0);
             } else {
                 color = (1., 1., 1.);
             }
             commands.spawn(draw_square(
-                size,
+                SQUARE_SIZE,
                 color,
-                (row as f32) * size,
-                (column as f32) * size,
+                (row as f32) * SQUARE_SIZE,
+                (column as f32) * SQUARE_SIZE,
             ));
         }
     }
